@@ -137,8 +137,7 @@
             
                 <button type="button" id="toggle-eye" 
                         onclick="togglePasswordVisibility()" 
-                        onmousedown="event.preventDefault()"
-                        ontouchstart="event.preventDefault()"
+                        onfocus="document.getElementById('password-input').focus()"
                         style="position: absolute; right: 16px; background: none; border: none; padding: 0; margin: 0; color: #4b5563; font-size: 14px; font-weight: 500; cursor: pointer; width: auto; height: auto; display: inline-block;">Show</button>
             </div>
             <button onclick="login()">Login</button>
