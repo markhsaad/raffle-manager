@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+</head>
+<body>
+
+    <h2>Enter System Password</h2>
+    <input type="password" id="password-input">
+    <button onclick="login()">Login</button>
+
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwFLIdX5AV3sHQbFMPVLtLWeAC2D-kqYaCL6tA0IePzfbpg98lwCw7_1K4gzqmcAmRdNA/exec"; 
+
+        async function login() {
+            const pass = document.getElementById('password-input').value;
+            
+            try {
+                const res = await fetch(`${SCRIPT_URL}?password=${encodeURIComponent(pass)}`);
+                const result = await res.json();
+                
+                if (result.success) {
+                    alert("Success! Password is correct.");
+                } else {
+                    alert("Incorrect Password.");
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Connection failed.");
+            }
+        }
+    </script>
+
+</body>
+</html>
