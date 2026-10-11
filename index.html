@@ -132,9 +132,14 @@
         <!-- 1. LOGIN SCREEN -->
         <div id="login-screen">
             <div id="login-msg" class="msg msg-error"></div>
-            <input type="password" id="password-input" placeholder="Enter Password">
+            <div style="position: relative; width: 100%; display: flex; align-items: center; margin-bottom: 16px; box-sizing: border-box;">
+                <!-- Fixed style tag overrides layout shifting -->
+                <input type="password" id="password-input" placeholder="Enter System Password" style="margin-bottom: 0; padding-right: 64px; display: block; width: 100%; box-sizing: border-box;">
+                
+                <!-- Fixed toggle design removes structural block inheritances -->
+                <button type="button" id="toggle-eye" onclick="togglePasswordVisibility()" style="position: absolute; right: 16px; background: none; border: none; padding: 0; margin: 0; color: #4b5563; font-size: 14px; font-weight: 500; cursor: pointer; width: auto; height: auto; display: inline-block;">Show</button>
+            </div>
             <button onclick="login()">Login</button>
-        </div>
 
         <!-- 2. SUBMISSION SCREEN -->
         <div id="app-screen" class="hidden">
@@ -232,6 +237,19 @@
             } catch (error) {
                 console.error(error);
                 showMessage('form-msg', "Network writing error occurred.", true);
+            }
+        }
+
+        function togglePasswordVisibility() {
+            const passwordField = document.getElementById('password-input');
+            const toggleBtn = document.getElementById('toggle-eye');
+            
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                toggleBtn.innerText = 'Hide';
+            } else {
+                passwordField.type = 'password';
+                toggleBtn.innerText = 'Show';
             }
         }
     </script>
