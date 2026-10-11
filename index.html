@@ -1,35 +1,239 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Login</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raffle Manager</title>
+    <style>
+        /* Base styles centering all content */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* The modern card element */
+        .card {
+            background: #ffffff;
+            padding: 32px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            width: 100%;
+            max-width: 400px;
+            box-sizing: border-box;
+        }
+
+        h2 {
+            margin-top: 0;
+            margin-bottom: 24px;
+            font-size: 24px;
+            font-weight: 600;
+            text-align: center;
+            color: #111827;
+        }
+
+        /* Form component layout */
+        input, select {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 16px;
+            box-sizing: border-box;
+            background-color: #f9fafb;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+            background-color: #ffffff;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #2563eb;
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #1d4ed8;
+        }
+
+        /* Style tweaks for submission buttons */
+        .btn-submit {
+            background-color: #059669;
+        }
+
+        .btn-submit:hover {
+            background-color: #047857;
+        }
+
+        /* Message display containers */
+        .msg {
+            margin-bottom: 16px;
+            padding: 10px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            display: none;
+            text-align: center;
+        }
+
+        .msg-error {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+
+        .msg-success {
+            background-color: #d1fae5;
+            color: #065f46;
+            border: 1px solid #6ee7b7;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type=number] {
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+    </style>
 </head>
 <body>
 
-    <h2>Enter System Password</h2>
-    <input type="password" id="password-input">
-    <button onclick="login()">Login</button>
+    <div class="card">
+        <!-- 1. LOGIN SCREEN -->
+        <div id="login-screen">
+            <div id="login-msg" class="msg msg-error"></div>
+            <input type="password" id="password-input" placeholder="Enter Password">
+            <button onclick="login()">Login</button>
+        </div>
+
+        <!-- 2. SUBMISSION SCREEN -->
+        <div id="app-screen" class="hidden">
+            <h2>Submit Entry</h2>
+            <div id="form-msg" class="msg"></div>
+            <form onsubmit="submitData(event)">
+                <input type="text" id="name" placeholder="Name" required>
+                <input type="number" id="phone" step="1" placeholder="Phone Number" required>
+                <select id="type">
+                    <option value="Type A">Type A</option>
+                    <option value="Type B">Type B</option>
+                    <option value="Type B">Type C</option>
+                    <option value="Type B">Type D</option>
+                </select>
+                <input type="number" id="quantity" step="1" placeholder="Quantity" required>
+                <button type="submit" class="btn-submit">Submit</button>
+            </form>
+        </div>
+    </div>
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwFLIdX5AV3sHQbFMPVLtLWeAC2D-kqYaCL6tA0IePzfbpg98lwCw7_1K4gzqmcAmRdNA/exec"; 
+        let userPassword = "";
+
+        function showMessage(elementId, text, isError) {
+            const el = document.getElementById(elementId);
+            el.innerText = text;
+            el.className = isError ? "msg msg-error" : "msg msg-success";
+            el.style.display = "block";
+        }
+
+        function clearMessage(elementId) {
+            document.getElementById(elementId).style.display = "none";
+        }
 
         async function login() {
             const pass = document.getElementById('password-input').value;
+            clearMessage('login-msg');
             
+            if (!pass) {
+                showMessage('login-msg', "Password field cannot be empty.", true);
+                return;
+            }
+
             try {
-                const res = await fetch(`${SCRIPT_URL}?password=${encodeURIComponent(pass)}`);
+                const res = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ password: pass })
+                });
                 const result = await res.json();
                 
                 if (result.success) {
-                    alert("Success! Password is correct.");
+                    userPassword = pass;
+                    document.getElementById('login-screen').classList.add('hidden');
+                    document.getElementById('app-screen').classList.remove('hidden');
                 } else {
-                    alert("Incorrect Password.");
+                    showMessage('login-msg', "Incorrect Password.", true);
                 }
             } catch (error) {
                 console.error(error);
-                alert("Connection failed.");
+                showMessage('login-msg', "Connection failed.", true);
+            }
+        }
+
+        async function submitData(e) {
+            e.preventDefault();
+            clearMessage('form-msg');
+            
+            const payload = {
+                password: userPassword,
+                name: document.getElementById('name').value,
+                phone: document.getElementById('phone').value,
+                type: document.getElementById('type').value,
+                quantity: document.getElementById('quantity').value
+            };
+            
+            try {
+                const res = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await res.json();
+                
+                if (result.success) {
+                    showMessage('form-msg', "Success!", false);
+                    e.target.reset();
+                    setTimeout(function() {
+                        clearMessage('form-msg');
+                    }, 3000);
+                } else {
+                    showMessage('form-msg', "Failure: " + (result.message || "Session error"), true);
+                }
+            } catch (error) {
+                console.error(error);
+                showMessage('form-msg', "Network writing error occurred.", true);
             }
         }
     </script>
-
 </body>
 </html>
